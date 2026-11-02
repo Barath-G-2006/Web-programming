@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nebula Ledger – a tamper-proof bill splitter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <defs><radialGradient id="g" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#8fe3ff"/><stop offset="1" stop-color="#3a46c9"/></radialGradient></defs>
+      <circle cx="24" cy="24" r="9" fill="url(#g)"/>
+      <ellipse cx="24" cy="24" rx="21" ry="8" fill="none" stroke="#ffa24a" stroke-width="2" transform="rotate(-28 24 24)"/>
+      <circle cx="40" cy="14" r="3.2" fill="#ffa24a"/>
+    </svg>
+    <div>
+      <h1>Nebula Ledger</h1>
+      <p>Split bills like gravity: every debt has a path, and nothing can be quietly rewritten.</p>
+    </div>
+  </div>
+  <div class="tools">
+    <div class="chain-badge" id="badge" title="Each entry stores the SHA-256 fingerprint of the one before it"><i></i><span id="badgeText">Chain verified</span></div>
+    <button class="btn ghost" id="exportBtn">Export</button>
+    <button class="btn ghost" id="importBtn">Import</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+    <button class="btn ghost danger" id="resetBtn">Reset</button>
+  </div>
+</header>
+
+<main class="grid">
+
+  <!-- CREW -->
+  <section class="panel crew">
+    <h2>Crew <small id="crewCount"></small></h2>
+    <div class="row">
+      <input type="text" id="newName" placeholder="Add a person" maxlength="24" aria-label="Person's name">
+      <button class="btn primary" id="addPerson">Add</button>
+    </div>
+    <div class="row" style="margin-top:8px;align-items:center">
+      <label for="cur" style="font-size:.82rem;color:var(--dim)">Currency symbol</label>
+      <input type="text" id="cur" value="₹" maxlength="3" style="width:70px">
+    </div>
+    <div class="crew-list" id="crewList"></div>
+  </section>
+
+  <!-- STAGE -->
+  <section class="panel stage">
+    <canvas id="cosmos" aria-label="Constellation showing who owes whom"></canvas>
+    <div class="stage-top">
+      <div class="stat"><b id="sTotal">0</b><span>Total spent</span></div>
+      <div class="stat"><b id="sPlan">0</b><span>Transfers needed</span></div>
+      <div class="stat"><b id="sSaved">0</b><span>Transfers saved by the simplifier</span></div>
+    </div>
+    <div class="legend"><span><i style="background:var(--owed)"></i>is owed</span><span><i style="background:var(--owes)"></i>owes</span></div>
+    <div id="tip"></div>
+  </section>
+
+  <!-- EXPENSE -->
+  <section class="panel expense">
+    <h2>New expense</h2>
+    <div class="field"><label for="desc">What was it for?</label><input type="text" id="desc" placeholder="Beach shack dinner" maxlength="40"></div>
+    <div class="row">
+      <div class="field"><label for="amount">Amount</label><input type="number" id="amount" min="0" step="0.01" placeholder="0.00" inputmode="decimal"></div>
+      <div class="field"><label for="payer">Paid by</label><select id="payer"></select></div>
+    </div>
+    <div class="seg" id="seg" role="group" aria-label="Split method">
+      <button data-mode="equal" aria-pressed="true">Equal</button>
+      <button data-mode="exact" aria-pressed="false">Exact</button>
+      <button data-mode="percent" aria-pressed="false">Percent</button>
+      <button data-mode="shares" aria-pressed="false">Shares</button>
+    </div>
+    <div id="splitRows"></div>
+    <div class="hint" id="splitHint"></div>
+    <button class="btn primary" id="addExpense" style="width:100%">Add to ledger</button>
+  </section>
+
+  <!-- PLAN -->
+  <section class="panel plan">
+    <h2>Settle-up plan <small>fewest payments that clear every balance</small></h2>
+    <div id="planList"></div>
+  </section>
+
+  <!-- CHAIN -->
+  <section class="panel chain">
+    <h2>The chain <small id="chainCount"></small></h2>
+    <div class="blocks" id="blocks"></div>
+    <div class="chain-actions">
+      <button class="btn tiny" id="demoBtn">Load a demo trip</button>
+      <button class="btn tiny danger" id="tamperBtn" title="Edits an old entry in memory so you can watch the chain catch it">Try to tamper</button>
+      <button class="btn tiny" id="healBtn" hidden>Restore from storage</button>
+    </div>
+  </section>
+</main>
+
+<div id="toast" role="status"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
